@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Car Collection — Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0D0C;
+    --surface:#17150F;
+    --surface-2:#1E1B14;
+    --line:#332D22;
+    --brass:#B4863F;
+    --brass-dim:#7A5F35;
+    --steel:#6E7176;
+    --ink:#F1EBDF;
+    --ink-muted:#9C9587;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    padding:64px 24px 96px;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+
+  header{margin-bottom:56px;max-width:600px;}
+  .kicker{
+    font-size:13px;
+    color:var(--brass);
+    letter-spacing:0.02em;
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:42px;
+    line-height:1.15;
+    margin:0 0 16px;
+  }
+  .sub{
+    color:var(--ink-muted);
+    font-size:16px;
+    margin:0;
+  }
+
+  .gallery{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media(max-width:680px){
+    .gallery{grid-template-columns:1fr;}
+    h1{font-size:32px;}
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+
+  .photo-frame{
+    aspect-ratio:16/10;
+    background:
+      repeating-linear-gradient(135deg, var(--surface-2) 0 2px, var(--bg) 2px 4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    overflow:hidden;
+  }
+  .photo-frame:hover .label{border-color:var(--brass-dim);color:var(--brass);}
+  .photo-frame .label{
+    font-family:'Fraunces',serif;
+    font-size:13px;
+    color:var(--ink-muted);
+    background:var(--bg);
+    padding:6px 12px;
+    border:1px solid var(--line);
+    border-radius:3px;
+  }
+  .photo-frame .corner{
+    position:absolute;
+    width:16px;
+    height:16px;
+    border:1.5px solid var(--brass-dim);
+  }
+  .photo-frame .tl{top:10px;left:10px;border-right:none;border-bottom:none;}
+  .photo-frame .tr{top:10px;right:10px;border-left:none;border-bottom:none;}
+  .photo-frame .bl{bottom:10px;left:10px;border-right:none;border-top:none;}
+  .photo-frame .br{bottom:10px;right:10px;border-left:none;border-top:none;}
+
+  .card-body{padding:22px 24px 24px;}
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:4px;
+  }
+  .card-title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:21px;
+    margin:0;
+  }
+  .card-year{
+    font-size:12.5px;
+    color:var(--brass);
+    white-space:nowrap;
+  }
+
+  .card-tag{
+    font-size:12px;
+    color:var(--steel);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin:0 0 12px;
+  }
+
+  .card-blurb{
+    font-size:14.5px;
+    color:var(--ink-muted);
+    margin:0 0 16px;
+  }
+
+  .specs{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px 10px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .spec{display:flex;flex-direction:column;gap:2px;}
+  .spec .v{font-size:14px;color:var(--ink);font-weight:500;}
+  .spec .k{font-size:11.5px;color:var(--steel);}
+
+  .search-row{
+    position:relative;
+    max-width:360px;
+    margin-top:28px;
+  }
+  .search-row input{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    padding:12px 14px 12px 38px;
+    border-radius:5px;
+    outline:none;
+  }
+  .search-row input:focus{border-color:var(--brass-dim);}
+  .search-row input::placeholder{color:var(--steel);}
+  .search-row svg{
+    position:absolute;
+    left:13px;
+    top:50%;
+    transform:translateY(-50%);
+    width:15px;
+    height:15px;
+    stroke:var(--steel);
+    pointer-events:none;
+  }
+  .no-results{
+    display:none;
+    color:var(--ink-muted);
+    font-size:14.5px;
+    padding:32px 0;
+  }
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+  .add-btn{
+    background:none;
+    border:1px solid var(--brass-dim);
+    color:var(--brass);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    padding:11px 16px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .add-btn:hover{background:var(--surface-2);}
+
+  .add-panel{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px;
+    margin-top:20px;
+  }
+  .add-panel.open{display:block;}
+  .add-panel h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:18px;
+    margin:0 0 18px;
+  }
+  .field-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  @media(max-width:560px){.field-row{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-size:12.5px;color:var(--ink-muted);}
+  .field input[type=text],
+  .field input[type=number],
+  .field textarea{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 11px;
+    border-radius:4px;
+    outline:none;
+    resize:vertical;
+  }
+  .field input:focus,
+  .field textarea:focus{border-color:var(--brass-dim);}
+  .field-error{
+    display:none;
+    font-size:12px;
+    color:#C9776A;
+  }
+  .field-error.show{display:block;}
+
+  .file-drop{
+    background:var(--surface-2);
+    border:1px dashed var(--line);
+    border-radius:4px;
+    padding:16px;
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-muted);
+    cursor:pointer;
+  }
+  .file-drop:hover{border-color:var(--brass-dim);}
+  .file-preview{
+    margin-top:10px;
+    max-width:180px;
+    border-radius:4px;
+    display:none;
+  }
+
+  .panel-actions{
+    display:flex;
+    gap:10px;
+    margin-top:6px;
+  }
+  .btn-primary{
+    background:var(--brass);
+    border:1px solid var(--brass);
+    color:var(--bg);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .btn-primary:hover{background:#c69752;}
+  .btn-ghost{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-muted);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .btn-ghost:hover{background:var(--surface-2);}
+
+  .photo-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--steel);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Super Car Collection</p>
+    <h1>The collection</h1>
+    <p class="sub">Eight cars spanning heritage, hybrid performance, and grand touring — a starting point for the gallery page. Swap the frames for your own photography before launch.</p>
+    <div class="search-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="carSearch" placeholder="Search by make, model, or type…" oninput="filterCars()">
+    </div>
+    <div class="toolbar">
+      <button class="add-btn" id="signInBtn" onclick="toggleSignInBox()">Owner sign-in</button>
+      <button class="add-btn" id="toggleAddBtn" onclick="toggleAddPanel()" style="display:none">+ Add a car</button>
+    </div>
+
+    <div class="field-row" id="signInBox" style="display:none;max-width:320px;align-items:end;margin-top:12px;">
+      <div class="field">
+        <label for="f-owner-pass">Password</label>
+        <input type="password" id="f-owner-pass" placeholder="Enter owner password" onkeydown="if(event.key==='Enter')ownerSignIn()">
+      </div>
+      <div class="field" style="flex:0;">
+        <button class="btn-primary" onclick="ownerSignIn()" style="white-space:nowrap;">Sign in</button>
+      </div>
+    </div>
+    <span class="field-error" id="err-signin">Incorrect password.</span>
+
+    <div class="add-panel" id="addPanel">
+      <h3>Add a car to the collection</h3>
+      <div class="field-row">
+        <div class="field full">
+          <label for="f-name">Name of car *</label>
+          <input type="text" id="f-name" placeholder="e.g. Pagani Utopia">
+          <span class="field-error" id="err-name">Enter a car name.</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-hp">Horsepower</label>
+          <input type="text" id="f-hp" placeholder="e.g. 852 hp">
+        </div>
+        <div class="field">
+          <label for="f-torque">Torque</label>
+          <input type="text" id="f-torque" placeholder="e.g. 780 Nm">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-speed-value">Top speed</label>
+          <input type="text" id="f-speed-value" placeholder="e.g. 220">
+        </div>
+        <div class="field">
+          <label for="f-speed-unit">Unit</label>
+          <select id="f-speed-unit">
+            <option value="mph">mph</option>
+            <option value="km/h">km/h</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field full">
+          <label for="f-external">External link</label>
+          <input type="text" id="f-external" placeholder="e.g. manufacturer page, press kit, Wikipedia">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field full">
+          <label for="f-blurb">Description</label>
+          <textarea id="f-blurb" rows="3" placeholder="A short write-up about the car"></textarea>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field full">
+          <label>Image</label>
+          <div class="file-drop" onclick="document.getElementById('f-photo').click()">Click to import a photo (optional — a placeholder frame is used if skipped)</div>
+          <input type="file" id="f-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+          <img id="photoPreview" class="file-preview">
+        </div>
+      </div>
+      <div class="panel-actions">
+        <button class="btn-primary" onclick="addCar()">Add car</button>
+        <button class="btn-ghost" onclick="toggleAddPanel()">Cancel</button>
+      </div>
+    </div>
+  </header>
+
+  <p class="no-results" id="noResults">No cars match that search.</p>
+  <input type="file" id="sharedPhotoInput" accept="image/*" style="display:none" onchange="handleSharedPhotoUpload()">
+
+  <div class="gallery" id="gallery">
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Ferrari SF90 Stradale</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Ferrari SF90 Stradale</h3>
+          <span class="card-year">2023–present</span>
+        </div>
+        <p class="card-tag">Hybrid supercar</p>
+        <p class="card-blurb">Ferrari's first series-production plug-in hybrid, pairing a twin-turbo V8 with three electric motors for all-wheel drive and near-instant torque.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">986 hp</span><span class="k">Combined output</span></div>
+          <div class="spec"><span class="v">800 Nm</span><span class="k">Torque (ICE)</span></div>
+          <div class="spec"><span class="v">1,570 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">2.5s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">211 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">340 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Rolls-Royce Phantom</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Rolls-Royce Phantom</h3>
+          <span class="card-year">8th generation</span>
+        </div>
+        <p class="card-tag">Flagship sedan</p>
+        <p class="card-blurb">Built on a bespoke aluminum spaceframe, the Phantom remains the brand's statement of handcrafted luxury and old-world presence.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">563 hp</span><span class="k">Twin-turbo V12</span></div>
+          <div class="spec"><span class="v">900 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">2,560 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">5.4s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">155 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">250 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Lamborghini Revuelto</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Lamborghini Revuelto</h3>
+          <span class="card-year">2023–present</span>
+        </div>
+        <p class="card-tag">V12 hybrid flagship</p>
+        <p class="card-blurb">Successor to the Aventador, combining a naturally aspirated V12 with three electric motors — Lamborghini's bet on hybrid without losing the drama.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">1,001 hp</span><span class="k">Combined output</span></div>
+          <div class="spec"><span class="v">725 Nm</span><span class="k">Torque (V12)</span></div>
+          <div class="spec"><span class="v">1,772 kg</span><span class="k">Dry weight</span></div>
+          <div class="spec"><span class="v">2.5s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">217 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">350+ km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Bentley Continental GT</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Bentley Continental GT</h3>
+          <span class="card-year">3rd generation</span>
+        </div>
+        <p class="card-tag">Grand tourer</p>
+        <p class="card-blurb">A handcrafted cabin over serious performance — built for covering long distances quickly without sacrificing comfort.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">650 hp</span><span class="k">Twin-turbo W12</span></div>
+          <div class="spec"><span class="v">900 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">2,320 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">3.6s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">208 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">335 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Aston Martin DB12</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Aston Martin DB12</h3>
+          <span class="card-year">2023–present</span>
+        </div>
+        <p class="card-tag">Super tourer</p>
+        <p class="card-blurb">Aston Martin's own term for it — a grand tourer sharpened with supercar-level chassis tuning, built for both b-roads and long hauls.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">671 hp</span><span class="k">Twin-turbo V8</span></div>
+          <div class="spec"><span class="v">800 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">1,898 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">3.6s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">202 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">325 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — McLaren 750S</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">McLaren 750S</h3>
+          <span class="card-year">2023–present</span>
+        </div>
+        <p class="card-tag">Track-focused supercar</p>
+        <p class="card-blurb">A lighter, sharper evolution of the 720S, built around a carbon monocoque and tuned for the driver over outright comfort.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">740 hp</span><span class="k">Twin-turbo V8</span></div>
+          <div class="spec"><span class="v">800 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">1,389 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">2.7s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">206 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">332 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Porsche 911 Turbo S</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Porsche 911 Turbo S</h3>
+          <span class="card-year">992 generation</span>
+        </div>
+        <p class="card-tag">Everyday supercar</p>
+        <p class="card-blurb">The car that proves usable and blisteringly fast aren't opposites — daily-drivable, but capable of embarrassing far more exotic machinery.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">640 hp</span><span class="k">Twin-turbo flat-six</span></div>
+          <div class="spec"><span class="v">800 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">1,640 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">2.6s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">205 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">330 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo-frame" onclick="triggerPhotoEdit(this)" title="Click to add a photo">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="label">Photo — Mercedes-Maybach S 680</span>
+      </div>
+      <div class="card-body">
+        <div class="card-head">
+          <h3 class="card-title">Mercedes-Maybach S 680</h3>
+          <span class="card-year">2021–present</span>
+        </div>
+        <p class="card-tag">Ultra-luxury sedan</p>
+        <p class="card-blurb">Mercedes' answer to Rolls-Royce and Bentley on home turf — rear-seat comfort and cabin isolation as the entire point of the car.</p>
+        <div class="specs">
+          <div class="spec"><span class="v">621 hp</span><span class="k">Twin-turbo V12</span></div>
+          <div class="spec"><span class="v">900 Nm</span><span class="k">Torque</span></div>
+          <div class="spec"><span class="v">2,365 kg</span><span class="k">Weight</span></div>
+          <div class="spec"><span class="v">4.4s</span><span class="k">0–60 mph</span></div>
+          <div class="spec"><span class="v">155 mph</span><span class="k">Top speed</span></div>
+          <div class="spec"><span class="v">250 km/h</span><span class="k">Top speed (km/h)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Gallery mockup — replace photo frames with licensed or original photography before launch.</footer>
+
+</div>
+<script>
+  function filterCars(){
+    const q = document.getElementById('carSearch').value.trim().toLowerCase();
+    const cards = document.querySelectorAll('#gallery .card');
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const match = text.includes(q);
+      card.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+    document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  function toggleAddPanel(){
+    const panel = document.getElementById('addPanel');
+    panel.classList.toggle('open');
+  }
+
+  const OWNER_PASSWORD = 'abc123okitharison';
+
+  function toggleSignInBox(){
+    const box = document.getElementById('signInBox');
+    box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    document.getElementById('err-signin').classList.remove('show');
+  }
+
+  function ownerSignIn(){
+    const entered = document.getElementById('f-owner-pass').value;
+    const err = document.getElementById('err-signin');
+    if (entered === OWNER_PASSWORD){
+      err.classList.remove('show');
+      document.getElementById('signInBtn').style.display = 'none';
+      document.getElementById('signInBox').style.display = 'none';
+      document.getElementById('toggleAddBtn').style.display = '';
+    } else {
+      err.classList.add('show');
+    }
+  }
+
+  let currentEditFrame = null;
+
+  function triggerPhotoEdit(frameEl){
+    currentEditFrame = frameEl;
+    document.getElementById('sharedPhotoInput').click();
+  }
+
+  function handleSharedPhotoUpload(){
+    const input = document.getElementById('sharedPhotoInput');
+    const file = input.files[0];
+    if (!file || !currentEditFrame) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      currentEditFrame.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      currentEditFrame.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  let pendingPhotoData = null;
+
+  function previewPhoto(input){
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      pendingPhotoData = e.target.result;
+      const img = document.getElementById('photoPreview');
+      img.src = pendingPhotoData;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addCar(){
+    const name = document.getElementById('f-name').value.trim();
+    const errName = document.getElementById('err-name');
+    if (!name){
+      errName.classList.add('show');
+      return;
+    }
+    errName.classList.remove('show');
+
+    const blurb = document.getElementById('f-blurb').value.trim();
+    const hp = document.getElementById('f-hp').value.trim();
+    const torque = document.getElementById('f-torque').value.trim();
+    const speedValue = document.getElementById('f-speed-value').value.trim();
+    const speedUnit = document.getElementById('f-speed-unit').value;
+    const topSpeed = speedValue ? (speedValue + ' ' + speedUnit) : '';
+    const externalLink = document.getElementById('f-external').value.trim();
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const frame = document.createElement('div');
+    frame.className = 'photo-frame';
+    if (pendingPhotoData){
+      const img = document.createElement('img');
+      img.src = pendingPhotoData;
+      frame.appendChild(img);
+    } else {
+      frame.innerHTML = '<span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = 'Photo — ' + name;
+      frame.appendChild(label);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const head = document.createElement('div');
+    head.className = 'card-head';
+    const title = document.createElement('h3');
+    title.className = 'card-title';
+    title.textContent = name;
+    head.appendChild(title);
+    body.appendChild(head);
+
+    if (blurb){
+      const blurbP = document.createElement('p');
+      blurbP.className = 'card-blurb';
+      blurbP.textContent = blurb;
+      body.appendChild(blurbP);
+    }
+
+    if (hp || torque || topSpeed){
+      const specs = document.createElement('div');
+      specs.className = 'specs';
+      const specList = [
+        [hp, 'Horsepower'],
+        [torque, 'Torque'],
+        [topSpeed, 'Top speed']
+      ];
+      specList.forEach(([value, label]) => {
+        if (!value) return;
+        const spec = document.createElement('div');
+        spec.className = 'spec';
+        const v = document.createElement('span');
+        v.className = 'v';
+        v.textContent = value;
+        const k = document.createElement('span');
+        k.className = 'k';
+        k.textContent = label;
+        spec.appendChild(v);
+        spec.appendChild(k);
+        specs.appendChild(spec);
+      });
+      body.appendChild(specs);
+    }
+
+    if (externalLink){
+      const linkP = document.createElement('a');
+      linkP.href = externalLink;
+      linkP.target = '_blank';
+      linkP.rel = 'noopener noreferrer';
+      linkP.textContent = 'More info →';
+      linkP.style.display = 'inline-block';
+      linkP.style.marginTop = '12px';
+      linkP.style.fontSize = '13px';
+      linkP.style.color = 'var(--brass)';
+      body.appendChild(linkP);
+    }
+
+    card.appendChild(frame);
+    card.appendChild(body);
+    document.getElementById('gallery').appendChild(card);
+
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-blurb').value = '';
+    document.getElementById('f-hp').value = '';
+    document.getElementById('f-torque').value = '';
+    document.getElementById('f-speed-value').value = '';
+    document.getElementById('f-speed-unit').value = 'mph';
+    document.getElementById('f-external').value = '';
+    document.getElementById('f-photo').value = '';
+    document.getElementById('photoPreview').style.display = 'none';
+    pendingPhotoData = null;
+    toggleAddPanel();
+    filterCars();
+  }
+</script>
+</body>
+</html>
